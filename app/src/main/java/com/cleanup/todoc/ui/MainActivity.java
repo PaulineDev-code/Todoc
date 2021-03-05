@@ -28,6 +28,7 @@ import com.cleanup.todoc.viewmodels.TaskViewModel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>Home activity of the application which is displayed when the user opens the app.</p>
@@ -103,8 +104,13 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         listTasks = findViewById(R.id.list_tasks);
         lblNoTasks = findViewById(R.id.lbl_no_task);
 
+        this.configureViewModel();
+        this.getTasks();
+
+
         listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         listTasks.setAdapter(adapter);
+
 
         findViewById(R.id.fab_add_task).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             }
         });
 
-        this.configureViewModel();
+
     }
 
     @Override
@@ -153,6 +159,16 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         this.taskViewModel = ViewModelProviders.of(this, mViewModelFactory).get(TaskViewModel.class);
     }
 
+    //  -- Configuring RecyclerView / already done in th onCreate for now
+    private void configureRecyclerView() {
+
+    }
+
+    //  -- Get all tasks
+    private void getTasks(){
+        this.taskViewModel.getTasks().observe(this, this::updateTasksList);
+    }
+
     /**
      * Called when the user clicks on the positive button of the Create Task Dialog.
      *
@@ -176,18 +192,14 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             }
             // If both project and name of the task have been set
             else if (taskProject != null) {
-                // TODO: Replace this by id of persisted task
-                long id = (long) (Math.random() * 50000);
-
 
                 Task task = new Task(
-                        id,
                         taskProject.getId(),
                         taskName,
                         new Date().getTime()
                 );
 
-                addTask(task);
+                this.taskViewModel.createTask(task);
 
                 dialogInterface.dismiss();
             }
@@ -253,6 +265,11 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             }
             adapter.updateTasks(tasks);
         }
+    }
+
+    //  -- Update Tasks List
+    private void updateTasksList(List<Task> tasks){
+        this.adapter.updateTasks(tasks);
     }
 
     /**
