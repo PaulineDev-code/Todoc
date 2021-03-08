@@ -11,6 +11,8 @@ import android.support.annotation.NonNull;
 import com.cleanup.todoc.model.Project;
 import com.cleanup.todoc.model.Task;
 
+import java.util.concurrent.Executors;
+
 @Database(entities = {Task.class, Project.class}, version = 1, exportSchema = false)
 public abstract class TodocDatabase extends RoomDatabase {
 
@@ -28,6 +30,18 @@ public abstract class TodocDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             TodocDatabase.class, "MyDatabase.db")
+                            .addCallback(new Callback(){
+                                @Override
+                                public void onCreate(SupportSQLiteDatabase db) {
+                                    super.onCreate(db);
+                                    Executors.newSingleThreadScheduledExecutor().execute(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            getInstance(context).projectDao().insertAllProjects(Project.getAllProjects());
+                                        }
+                                    });
+                                }
+                            })
                             .build();
                 }
             }

@@ -21,6 +21,9 @@ public interface ProjectDao {
     LiveData<Project> getProject(long projectId);
 
     @Insert
+    long[] insertAllProjects(Project[] projects);
+
+    @Insert
     long insertProject(Project project);
 
     @Update

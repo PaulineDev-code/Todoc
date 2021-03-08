@@ -6,13 +6,19 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.cleanup.todoc.database.ProjectsCallback;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>Models for project in which tasks are included.</p>
  *
  * @author Gaëtan HERFRAY
  */
 @Entity
-public class Project {
+public class Project implements ProjectsCallback {
 
     /**
      * The unique identifier of the project
@@ -31,6 +37,8 @@ public class Project {
      */
     @ColorInt
     private final int color;
+
+
 
     /**
      * Instantiates a new Project.
@@ -57,6 +65,11 @@ public class Project {
                 new Project(2L, "Projet Lucidia", 0xFFB4CDBA),
                 new Project(3L, "Projet Circus", 0xFFA3CED2),
         };
+    }
+    
+    public List<Project> callback(List<Project> projects) {
+        List<Project> allProject = Arrays.asList(getAllProjects());
+        return callback(allProject);
     }
 
     /**
