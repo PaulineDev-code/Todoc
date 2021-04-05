@@ -37,16 +37,12 @@ import java.util.List;
  * @author Gaëtan HERFRAY
  */
 public class MainActivity extends AppCompatActivity implements TasksAdapter.DeleteTaskListener {
-    /**
-     * List of all projects available in the application
-     */
-    private final Project[] allProjects = Project.getAllProjects();
 
     /**
      * List of all current tasks of the application
      */
     @NonNull
-    private final ArrayList<Task> tasks = new ArrayList<>();
+    private ArrayList<Task> tasks = new ArrayList<>();
 
     /**
      * The adapter which handles the list of tasks
@@ -106,10 +102,9 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
 
         this.configureViewModel();
         this.getTasks();
+        configureRecyclerView();
 
 
-        listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        listTasks.setAdapter(adapter);
 
 
         findViewById(R.id.fab_add_task).setOnClickListener(new View.OnClickListener() {
@@ -142,15 +137,15 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             sortMethod = SortMethod.RECENT_FIRST;
         }
 
-        updateTasks();
+        updateTasks(tasks);
 
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onDeleteTask(Task task) {
-        tasks.remove(task);
-        updateTasks();
+        this.taskViewModel.deleteTask(task.getId());
+        updateTasks(tasks);
     }
 
     //  -- Configuring ViewModel
@@ -159,14 +154,20 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         this.taskViewModel = ViewModelProviders.of(this, mViewModelFactory).get(TaskViewModel.class);
     }
 
-    //  -- Configuring RecyclerView / already done in th onCreate for now
+    //  -- Configuring RecyclerView
     private void configureRecyclerView() {
+        listTasks.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        listTasks.setAdapter(adapter);
+    }
 
+    //  -- Get all projects
+    private void getProjects(){
+        this.taskViewModel.getProjectList().observe(this, this::populateDialogSpinner);
     }
 
     //  -- Get all tasks
     private void getTasks(){
-        this.taskViewModel.getTasks().observe(this, this::updateTasksList);
+        this.taskViewModel.getTasks().observe(this, this::updateTasks);
     }
 
     /**
@@ -199,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
                         new Date().getTime()
                 );
 
-                this.taskViewModel.createTask(task);
+                addTask(task);
 
                 dialogInterface.dismiss();
             }
@@ -208,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
                 dialogInterface.dismiss();
             }
         }
-        // If dialog is aloready closed
+        // If dialog is already closed
         else {
             dialogInterface.dismiss();
         }
@@ -225,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
         dialogEditText = dialog.findViewById(R.id.txt_task_name);
         dialogSpinner = dialog.findViewById(R.id.project_spinner);
 
-        populateDialogSpinner();
+        this.getProjects();
     }
 
     /**
@@ -234,14 +235,15 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
      * @param task the task to be added to the list
      */
     private void addTask(@NonNull Task task) {
-        tasks.add(task);
-        updateTasks();
+        this.taskViewModel.createTask(task);
+        updateTasks(tasks);
     }
 
     /**
      * Updates the list of tasks in the UI
      */
-    private void updateTasks() {
+    private void updateTasks(List<Task> tasks) {
+        this.tasks = (ArrayList<Task>) tasks;
         if (tasks.size() == 0) {
             lblNoTasks.setVisibility(View.VISIBLE);
             listTasks.setVisibility(View.GONE);
@@ -265,11 +267,6 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
             }
             adapter.updateTasks(tasks);
         }
-    }
-
-    //  -- Update Tasks List
-    private void updateTasksList(List<Task> tasks){
-        this.adapter.updateTasks(tasks);
     }
 
     /**
@@ -318,8 +315,8 @@ public class MainActivity extends AppCompatActivity implements TasksAdapter.Dele
     /**
      * Sets the data of the Spinner with projects to associate to a new task
      */
-    private void populateDialogSpinner() {
-        final ArrayAdapter<Project> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allProjects);
+    private void populateDialogSpinner(List<Project> projects) {
+        final ArrayAdapter<Project> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, projects);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         if (dialogSpinner != null) {
             dialogSpinner.setAdapter(adapter);

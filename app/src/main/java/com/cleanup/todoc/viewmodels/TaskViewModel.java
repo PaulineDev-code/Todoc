@@ -18,8 +18,6 @@ public class TaskViewModel extends ViewModel {
     private final Executor executor;
 
     // DATA
-//    @Nullable
-//    private LiveData<User> currentUser;
 
     public TaskViewModel(TaskDataRepository taskDataSource, ProjectDataRepository projectDataSource, Executor executor) {
         this.taskDataSource = taskDataSource;
@@ -27,12 +25,6 @@ public class TaskViewModel extends ViewModel {
         this.executor = executor;
     }
 
-//    public void init(long userId) {
-//        if (this.currentUser != null) {
-//            return;
-//        }
-//        currentUser = userDataSource.getUser(userId);
-//    }
 
     // -------------
     // FOR PROJECT
@@ -51,7 +43,6 @@ public class TaskViewModel extends ViewModel {
         return taskDataSource.getTasks();
     }
 
-    //TODO: can't replace with lambda 'cause of langage lvl 7? & necessary final?
     public void createTask(final Task task) {
         executor.execute(new Runnable() {
             @Override
