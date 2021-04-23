@@ -21,14 +21,14 @@ public interface ProjectDao {
     LiveData<Project> getProject(long projectId);
 
     @Insert
-    long[] insertAllProjects(Project[] projects);
+    void insertAllProjects(Project[] projects);
 
     @Insert
-    long insertProject(Project project);
+    void insertProject(Project project);
 
     @Update
-    int updateProject(Project project);
+    void updateProject(Project project);
 
     @Query("DELETE FROM Project where id = :projectId")
-    int deleteProject(long projectId);
+    void deleteProject(long projectId);
 }

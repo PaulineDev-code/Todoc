@@ -34,9 +34,6 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
     @NonNull
     private final DeleteTaskListener deleteTaskListener;
 
-    // FOR DATA
-    private WeakReference<DeleteTaskListener> callbackWeakRef;
-
     /**
      * Instantiates a new TasksAdapter.
      *
@@ -53,7 +50,6 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
      * @param tasks the list of tasks the adapter deals with to set
      */
     void updateTasks(@NonNull final List<Task> tasks) {
-//        this.callbackWeakRef = new WeakReference<DeleteTaskListener>(callback);
         this.tasks = tasks;
         notifyDataSetChanged();
     }
